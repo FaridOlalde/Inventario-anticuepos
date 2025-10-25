@@ -55,7 +55,7 @@ if st.button("🔁 Recargar datos desde Excel"):
     st.cache_data.clear()
     st.session_state["reload"] = not st.session_state["reload"]
 
-# Usa session_state["reload"] para forzar la recarga de los datos
+
 df = cargar_datos_drive()
 
 
