@@ -31,7 +31,7 @@ def cargar_datos_drive():
 
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 st.title("🔬 Inventario de Anticuerpos")
-st.caption("Busca anticuerpos por nombre o tipo celular (Caja). Los datos se actualizan automáticamente desde Google Drive.")
+st.caption("Busca los anticuerpos por nombre o caja. Los datos se actualizan automáticamente desde Google Drive.")
 
 df = cargar_datos_drive()
 
@@ -51,7 +51,7 @@ st.dataframe(resultados.reset_index(drop=True), use_container_width=True)
 if "reload" not in st.session_state:
     st.session_state["reload"] = False
 
-if st.button("🔁 Recargar datos desde Excel"):
+if st.button("🔁 Actualizar los datos"):
     st.cache_data.clear()
     st.session_state["reload"] = not st.session_state["reload"]
 
