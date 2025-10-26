@@ -37,8 +37,7 @@ def cargar_datos_drive():
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
 # --- TEMA DÍA DE MUERTOS ---
-hoy = datetime.today()
-if hoy.month == 11 and hoy.day in [1, 2]:
+
     # Fondo decorativo
     st.markdown(
         """
@@ -67,7 +66,7 @@ if hoy.month == 11 and hoy.day in [1, 2]:
     )
 
 # --- TÍTULO DE LA APP ---
-st.markdown("<h1 style='color:#C67FAE;'>Inventario de Anticuerpos</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
 
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
