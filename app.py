@@ -78,20 +78,27 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC Y MOSTRAR MODAL ---
 selected = grid_response['selected_rows']
 
-# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL ---
-selected = grid_response['selected_rows']
-
 if selected is not None and len(selected) > 0:
-    fila = selected[0]
-    idx = resultados[resultados[columnas_visibles[0]] == fila[columnas_visibles[0]]].index[0]
-    registro = resultados.iloc[idx]
+    # Si es un DataFrame, lo convertimos a diccionario
+    if isinstance(selected, pd.DataFrame):
+        fila = selected.iloc[0].to_dict()
+    elif isinstance(selected, list) and isinstance(selected[0], dict):
+        fila = selected[0]
+    else:
+        fila = None
 
+    if fila:
+        # Buscar el registro completo en el dataframe original
+        filtro = resultados[columnas_visibles[0]] == fila[columnas_visibles[0]]
+        if filtro.any():
+            registro = resultados.loc[filtro].iloc[0]
 
-    with st.modal(f"📋 Detalle de {registro[columnas_visibles[0]]}"):
-        for col, val in registro.items():
-            st.markdown(f"**{col}:** {val}")
-        if st.button("Cerrar"):
-            st.rerun()
+            with st.modal(f"📋 Detalle de {registro[columnas_visibles[0]]}"):
+                for col, val in registro.items():
+                    st.markdown(f"**{col}:** {val}")
+                if st.button("Cerrar"):
+                    st.rerun()
+
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
