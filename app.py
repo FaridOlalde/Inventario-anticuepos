@@ -67,16 +67,17 @@ st.write(
 
 # --- MOSTRAR MODAL SIMULADO ARRIBA ---
 if st.session_state.get("fila_seleccionada") is not None:
-    # Buscamos la fila en el DataFrame usando la columna clave
-    registro = resultados[resultados[columnas_visibles[0]] == st.session_state["fila_seleccionada"]].iloc[0]
-    with st.container():
-        st.markdown(f"### 📋 Detalle de {registro[columnas_visibles[0]]}")
-        st.divider()
-        for col, val in registro.items():
-            st.markdown(f"**{col}:** {val}")
-        st.divider()
-        if st.button("Cerrar"):
-            st.session_state["fila_seleccionada"] = None
+    fila_idx = st.session_state["fila_seleccionada"]
+    if fila_idx < len(resultados):
+        registro = resultados.iloc[fila_idx]
+        with st.container():
+            st.markdown(f"### 📋 Detalle de {registro[columnas_visibles[0]]}")
+            st.divider()
+            for col, val in registro.items():
+                st.markdown(f"**{col}:** {val}")
+            st.divider()
+            if st.button("Cerrar"):
+                st.session_state["fila_seleccionada"] = None
 
 # --- CONFIGURAR TABLA INTERACTIVA ---
 gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
@@ -97,9 +98,9 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC ---
 selected = grid_response.get("selected_rows", [])
 if selected and len(selected) > 0:
-    # Guardamos el valor de la primera columna visible como clave
-    valor_clave = selected[0][columnas_visibles[0]]
-    st.session_state["fila_seleccionada"] = valor_clave
+    # Usamos rowIndex que nos da AgGrid para acceder al DataFrame filtrado
+    fila_idx = selected[0]["_selectedRowNodeInfo"]["rowIndex"]
+    st.session_state["fila_seleccionada"] = fila_idx
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
