@@ -66,8 +66,9 @@ st.write(
 )
 
 # --- MOSTRAR MODAL SIMULADO ARRIBA ---
-if st.session_state["fila_seleccionada"] is not None:
-    registro = resultados.iloc[st.session_state["fila_seleccionada"]]
+if st.session_state.get("fila_seleccionada") is not None:
+    # Buscamos la fila en el DataFrame usando la columna clave
+    registro = resultados[resultados[columnas_visibles[0]] == st.session_state["fila_seleccionada"]].iloc[0]
     with st.container():
         st.markdown(f"### 📋 Detalle de {registro[columnas_visibles[0]]}")
         st.divider()
@@ -96,8 +97,9 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC ---
 selected = grid_response.get("selected_rows", [])
 if selected and len(selected) > 0:
-    row_index = int(selected[0]["_selectedRowNodeInfo"]["nodeId"])
-    st.session_state["fila_seleccionada"] = row_index
+    # Guardamos el valor de la primera columna visible como clave
+    valor_clave = selected[0][columnas_visibles[0]]
+    st.session_state["fila_seleccionada"] = valor_clave
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
