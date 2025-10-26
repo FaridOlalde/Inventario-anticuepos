@@ -35,7 +35,7 @@ def cargar_datos_drive():
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 st.title("🔬 Inventario de Anticuerpos")
-st.caption("Busca los anticuerpos por nombre o caja. Haz clic en cualquier fila para ver todos los detalles.")
+st.caption("Busca los anticuerpos por nombre.")
 
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
@@ -59,15 +59,14 @@ if len(df.columns) >= 3:
 else:
     columnas_visibles = df.columns
 
-# --- TEXTO SUPERIOR A LA TABLA ---
-st.markdown("**Da click al anticuerpo para ver detalles**")
-
 st.write(
     f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`"
     if busqueda else
     "Mostrando todos los registros disponibles"
 )
 
+# --- TEXTO SUPERIOR A LA TABLA ---
+st.markdown("**Da click al anticuerpo para ver detalles**")
 # --- AÑADIR COLUMNA TEMPORAL CON ÍNDICE REAL ---
 resultados["_fila_real"] = resultados.index  # índice original de df
 
