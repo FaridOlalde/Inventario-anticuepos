@@ -78,10 +78,14 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC Y MOSTRAR MODAL ---
 selected = grid_response['selected_rows']
 
-if selected:
-    fila = selected[0]  # Solo una fila seleccionada
+# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL ---
+selected = grid_response['selected_rows']
+
+if selected is not None and len(selected) > 0:
+    fila = selected[0]
     idx = resultados[resultados[columnas_visibles[0]] == fila[columnas_visibles[0]]].index[0]
     registro = resultados.iloc[idx]
+
 
     with st.modal(f"📋 Detalle de {registro[columnas_visibles[0]]}"):
         for col, val in registro.items():
