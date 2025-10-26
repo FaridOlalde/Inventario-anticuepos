@@ -7,7 +7,6 @@ import pandas as pd
 import requests
 from io import BytesIO
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
-from datetime import datetime
 
 # --- CONFIGURACIÓN DE GOOGLE DRIVE ---
 FILE_ID = "1TVnBvEjwY0Alywyp75QTwWVw0yqdWJaV"
@@ -44,9 +43,11 @@ df = cargar_datos_drive()
 if df.empty:
     st.stop()
 
-# --- INICIALIZAR session_state para la fila seleccionada ---
+# --- INICIALIZAR session_state ---
 if "fila_seleccionada_idx" not in st.session_state:
     st.session_state["fila_seleccionada_idx"] = None
+if "actualizar_flag" not in st.session_state:
+    st.session_state["actualizar_flag"] = False
 
 # --- BÚSQUEDA ---
 busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo:", "").strip()
@@ -68,7 +69,6 @@ st.write(
     "Mostrando todos los registros disponibles"
 )
 
-# --- TEXTO SUPERIOR A LA TABLA ---
 st.markdown("**Da click al anticuerpo para ver detalles**👇🏻")
 
 # --- AÑADIR COLUMNA TEMPORAL CON ÍNDICE REAL ---
@@ -101,19 +101,4 @@ if selected and len(selected) > 0:
 # --- MOSTRAR DETALLES EN EXPANDER ---
 if st.session_state.get("fila_seleccionada_idx") is not None:
     fila_idx = st.session_state["fila_seleccionada_idx"]
-    registro = df.loc[fila_idx]
-
-    with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
-        for col, val in registro.items():
-            # Columna A sin decimales
-            if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
-                val = int(val)
-            st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
-
-# --- BOTÓN DE ACTUALIZAR ---
-if st.button("🔁 Actualizar después de modificar el Excel"):
-    if hasattr(st, "cache_data"):
-        st.cache_data.clear()  # Limpiar cache de Streamlit
-    st.session_state["fila_seleccionada_idx"] = None  # Resetear fila seleccionada
-    st.experimental_rerun()  # Recargar app
-
+    regist
