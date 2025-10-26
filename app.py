@@ -101,7 +101,7 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
     fila_idx = st.session_state["fila_seleccionada_idx"]
     try:
         registro = df.loc[fila_idx]
-        with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
+        with st.expander(f"📋**Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
             for col, val in registro.items():
                 if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
                     val = int(val)
