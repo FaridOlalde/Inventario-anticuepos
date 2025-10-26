@@ -24,7 +24,7 @@ def cargar_datos_drive():
         dataframes = []
         for hoja in hojas:
             df = pd.read_excel(xls, hoja, header=5)
-            df["Caja"] = hoja
+            df["CAJA"] = hoja
             dataframes.append(df)
         if not dataframes:
             return pd.DataFrame()
@@ -70,7 +70,7 @@ st.write(
 )
 
 # --- TEXTO SUPERIOR A LA TABLA ---
-st.markdown("**Da click al anticuerpo para ver detalles**")
+st.markdown("**Da click al anticuerpo para ver detalles**👇🏻")
 
 # --- AÑADIR COLUMNA TEMPORAL CON ÍNDICE REAL ---
 resultados["_fila_real"] = resultados.index
@@ -103,7 +103,7 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
     fila_idx = st.session_state["fila_seleccionada_idx"]
     registro = df.loc[fila_idx]
 
-    with st.expander(f"📋 Detalle de {registro[columnas_visibles[0]]}", expanded=True):
+    with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
         for col, val in registro.items():
             # Columna A sin decimales
             if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
@@ -112,6 +112,6 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
             st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
 
 # --- BOTÓN DE ACTUALIZAR ---
-if st.button("🔁 Actualizar los datos"):
+if st.button("🔁 Actualizar después de modificar el Excel"):
     st.cache_data.clear()
     st.experimental_rerun()
