@@ -86,4 +86,34 @@ grid_response = AgGrid(
     gridOptions=grid_options,
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     enable_enterprise_modules=False,
-    fit_columns_on_grid_load=Tr
+    fit_columns_on_grid_load=True,
+    height=400,
+    theme="streamlit"
+)
+
+# --- DETECCIÓN DE CLIC ---
+selected = grid_response.get("selected_rows")
+if selected and len(selected) > 0:
+    fila_idx_real = selected[0].get("_fila_real")
+    if fila_idx_real is not None:
+        st.session_state["fila_seleccionada_idx"] = fila_idx_real
+
+# --- MOSTRAR DETALLES EN EXPANDER ---
+if st.session_state.get("fila_seleccionada_idx") is not None:
+    fila_idx = st.session_state["fila_seleccionada_idx"]
+    registro = df.loc[fila_idx]
+
+    with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
+        for col, val in registro.items():
+            # Columna A sin decimales
+            if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
+                val = int(val)
+            st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
+
+# --- BOTÓN DE ACTUALIZAR ---
+if st.button("🔁 Actualizar después de modificar el Excel"):
+    if hasattr(st, "cache_data"):
+        st.cache_data.clear()  # Limpiar cache de Streamlit
+    st.session_state["fila_seleccionada_idx"] = None  # Resetear fila seleccionada
+    st.experimental_rerun()  # Recargar app
+
