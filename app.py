@@ -78,18 +78,70 @@ grid_response = AgGrid(
     theme="streamlit",
 )
 
-# --- DETECCIÓN DE CLIC Y MOSTRAR TODA LA FILA ---
+# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL FLOTANTE ---
 selected = grid_response.get("selected_rows", [])
 
 if selected and len(selected) > 0:
-    # Obtenemos el índice de la fila original usando '_selectedRowNodeInfo'
     row_index = int(selected[0]["_selectedRowNodeInfo"]["nodeId"])
     registro = resultados.iloc[row_index]
 
-    # Mostramos toda la fila en un expander (simula la burbuja emergente)
-    with st.expander(f"📋 Detalle de {registro[columnas_visibles[0]]}", expanded=True):
-        for col, val in registro.items():
-            st.markdown(f"**{col}:** {val}")
+    # Modal flotante HTML + CSS + JS
+    st.markdown(f"""
+    <style>
+    /* Fondo modal */
+    .modal {{
+      display: block;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }}
+    /* Contenido del modal */
+    .modal-content {{
+      background-color: #f9f9f9;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 60%;
+      max-height: 70%;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+    }}
+    .close-btn {{
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }}
+    .close-btn:hover {{
+      color: black;
+    }}
+    </style>
+
+    <div class="modal" id="myModal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+        <h3>Detalle de {registro[columnas_visibles[0]]}</h3>
+        <hr>
+        {"<br>".join([f"<b>{col}:</b> {val}" for col, val in registro.items()])}
+      </div>
+    </div>
+
+    <script>
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(event) {{
+        if(event.key === "Escape") {{
+            document.getElementById('myModal').style.display='none';
+        }}
+    }});
+    </script>
+    """, unsafe_allow_html=True)
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
