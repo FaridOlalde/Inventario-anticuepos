@@ -34,7 +34,8 @@ def cargar_datos_drive():
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
-st.title("🔬 Inventario de Anticuerpos")
+st.markdown("<h1 style='color:#2E5283;'>🧬 Inventario de Anticuerpos</h1>", unsafe_allow_html=True)
+    
 st.caption("Busca los anticuerpos por nombre.")
 
 # --- CARGAR DATOS ---
