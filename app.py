@@ -13,7 +13,7 @@ FILE_ID = "1TVnBvEjwY0Alywyp75QTwWVw0yqdWJaV"
 URL = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
 
 # --- FUNCIÓN PARA CARGAR DATOS ---
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=30)  # Cache expira cada 30 segundos para recargar cambios
 def cargar_datos_drive():
     try:
         r = requests.get(URL)
@@ -38,6 +38,12 @@ st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 # --- TÍTULO DE LA APP ---
 st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
 
+# --- BOTÓN PARA LIMPIAR CACHE Y RECARGAR DATOS ---
+if st.button("🔁 Actualizar después de modificar el Excel"):
+    if hasattr(st, "cache_data"):
+        st.cache_data.clear()
+    st.success("Cache limpiada. Los datos se actualizarán automáticamente al recargar la tabla.")
+
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
 if df.empty:
@@ -46,8 +52,6 @@ if df.empty:
 # --- INICIALIZAR session_state ---
 if "fila_seleccionada_idx" not in st.session_state:
     st.session_state["fila_seleccionada_idx"] = None
-if "actualizar_flag" not in st.session_state:
-    st.session_state["actualizar_flag"] = False
 
 # --- BÚSQUEDA ---
 busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
@@ -110,15 +114,3 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
                 st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
     except Exception as e:
         st.warning(f"No se pudo mostrar los detalles: {e}")
-
-# --- BOTÓN DE ACTUALIZAR ---
-if st.button("🔁 Actualizar después de modificar el Excel"):
-    if hasattr(st, "cache_data"):
-        st.cache_data.clear()
-    st.session_state["fila_seleccionada_idx"] = None
-    st.session_state["actualizar_flag"] = True
-
-# --- EJECUTAR rerun de manera segura ---
-if st.session_state.get("actualizar_flag"):
-    st.session_state["actualizar_flag"] = False
-    st.experimental_rerun()
