@@ -49,7 +49,7 @@ if "fila_seleccionada_idx" not in st.session_state:
 # --- BÚSQUEDA ---
 busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
 if busqueda:
-    resultados = df[df.apply(lambda fila: fila.astype(str).str.contains(busqueda, case=False).any(), axis=1)]
+    resultados = df[df.apply(lambda fila: fila.astype(str).str.contains(busqueda, case=False).any(), axis=1)].copy()
 else:
     resultados = df.copy()
 
@@ -65,14 +65,18 @@ st.write(
     "Mostrando todos los registros disponibles"
 )
 
+# --- AÑADIR COLUMNA TEMPORAL CON ÍNDICE REAL ---
+resultados["_fila_real"] = resultados.index  # índice original de df
+
 # --- CONFIGURAR TABLA INTERACTIVA ---
-gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
+gb = GridOptionsBuilder.from_dataframe(resultados[list(columnas_visibles) + ["_fila_real"]])
+gb.configure_columns(["_fila_real"], hide=True)  # columna oculta para identificar la fila
 gb.configure_selection('single', use_checkbox=False)
 gb.configure_grid_options(domLayout='autoHeight')
 grid_options = gb.build()
 
 grid_response = AgGrid(
-    resultados[columnas_visibles],
+    resultados[list(columnas_visibles) + ["_fila_real"]],
     gridOptions=grid_options,
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     enable_enterprise_modules=False,
@@ -83,13 +87,9 @@ grid_response = AgGrid(
 
 # --- DETECCIÓN DE CLIC ---
 selected = grid_response.get("selected_rows", [])
-if selected and len(selected) > 0:
-    # AgGrid devuelve la fila seleccionada como diccionario
-    fila_valor = selected[0][columnas_visibles[0]]
-    # Buscamos la primera coincidencia en resultados
-    coincidencia = resultados[columnas_visibles[0]] == fila_valor
-    if coincidencia.any():
-        st.session_state["fila_seleccionada_idx"] = resultados[coincidencia].index[0]
+if selected:
+    fila_idx_real = selected[0]["_fila_real"]  # índice original de df
+    st.session_state["fila_seleccionada_idx"] = fila_idx_real
 
 # --- MOSTRAR MODAL SIMULADO (EXPANDER) ENCIMA DE LA TABLA ---
 if st.session_state.get("fila_seleccionada_idx") is not None:
