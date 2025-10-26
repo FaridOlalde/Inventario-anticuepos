@@ -7,7 +7,6 @@ import pandas as pd
 import requests
 from io import BytesIO
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
-from streamlit_modal import Modal
 
 # --- CONFIGURACIÓN DE GOOGLE DRIVE ---
 FILE_ID = "1TVnBvEjwY0Alywyp75QTwWVw0yqdWJaV"
@@ -56,11 +55,15 @@ if len(df.columns) >= 3:
 else:
     columnas_visibles = df.columns
 
-st.write(f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`" if busqueda else "Mostrando todos los registros disponibles")
+st.write(
+    f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`"
+    if busqueda else
+    "Mostrando todos los registros disponibles"
+)
 
 # --- CONFIGURAR TABLA INTERACTIVA ---
 gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
-gb.configure_selection('single', use_checkbox=False, rowMultiSelectWithClick=False)
+gb.configure_selection('single', use_checkbox=False)
 gb.configure_grid_options(domLayout='autoHeight')
 grid_options = gb.build()
 
@@ -75,29 +78,18 @@ grid_response = AgGrid(
     theme="streamlit",
 )
 
-# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL COMPLETO ---
+# --- DETECCIÓN DE CLIC Y MOSTRAR TODA LA FILA ---
 selected = grid_response.get("selected_rows", [])
 
-# Inicializar modal
-modal = Modal(key="detalle_modal")
-
 if selected and len(selected) > 0:
-    # Capturar el índice de la fila original
-    row_index = selected[0]["_selectedRowNodeInfo"]["nodeId"]
-    registro = resultados.iloc[int(row_index)]
+    # Obtenemos el índice de la fila original usando '_selectedRowNodeInfo'
+    row_index = int(selected[0]["_selectedRowNodeInfo"]["nodeId"])
+    registro = resultados.iloc[row_index]
 
-    # Abrir modal
-    modal.open()
-
-if modal.is_open() and selected and len(selected) > 0:
-    with modal.container():
-        st.markdown(f"### 📋 Detalle de **{registro[columnas_visibles[0]]}**")
-        st.divider()
+    # Mostramos toda la fila en un expander (simula la burbuja emergente)
+    with st.expander(f"📋 Detalle de {registro[columnas_visibles[0]]}", expanded=True):
         for col, val in registro.items():
             st.markdown(f"**{col}:** {val}")
-        st.divider()
-        if st.button("Cerrar"):
-            modal.close()
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
