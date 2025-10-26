@@ -105,7 +105,7 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
             if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
                 val = int(val)
             # Poner el título en rojo
-            st.markdown(f"<span style='color:red; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos después de modificar en Excel"):
