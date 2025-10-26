@@ -38,7 +38,7 @@ st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
 
 # --- TÍTULO DE LA APP ---
-st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO ❤️‍🩹</h1>", unsafe_allow_html=True)
 
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
