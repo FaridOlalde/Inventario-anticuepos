@@ -36,7 +36,6 @@ def cargar_datos_drive():
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
-
 # --- TÍTULO DE LA APP ---
 st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO ❤️‍🩹</h1>", unsafe_allow_html=True)
 
@@ -50,7 +49,7 @@ if "fila_seleccionada_idx" not in st.session_state:
     st.session_state["fila_seleccionada_idx"] = None
 
 # --- BÚSQUEDA ---
-busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
+busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo:", "").strip()
 if busqueda:
     resultados = df[df.apply(lambda fila: fila.astype(str).str.contains(busqueda, case=False).any(), axis=1)].copy()
 else:
@@ -87,31 +86,4 @@ grid_response = AgGrid(
     gridOptions=grid_options,
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     enable_enterprise_modules=False,
-    fit_columns_on_grid_load=True,
-    height=400,
-    theme="streamlit",
-)
-
-# --- DETECCIÓN DE CLIC ---
-selected = grid_response.get("selected_rows", [])
-if selected:
-    fila_idx_real = selected[0]["_fila_real"]
-    st.session_state["fila_seleccionada_idx"] = fila_idx_real
-
-# --- MOSTRAR DETALLES EN EXPANDER ---
-if st.session_state.get("fila_seleccionada_idx") is not None:
-    fila_idx = st.session_state["fila_seleccionada_idx"]
-    registro = df.loc[fila_idx]
-
-    with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
-        for col, val in registro.items():
-            # Columna A sin decimales
-            if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
-                val = int(val)
-            # Títulos en Crocus
-            st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
-
-# --- BOTÓN DE ACTUALIZAR ---
-if st.button("🔁 Actualizar después de modificar el Excel"):
-    st.cache_data.clear()
-    st.experimental_rerun()
+    fit_columns_on_grid_load=Tr
