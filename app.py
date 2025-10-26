@@ -23,7 +23,7 @@ def cargar_datos_drive():
         dataframes = []
         for hoja in hojas:
             df = pd.read_excel(xls, hoja, header=5)  # fila 6 = header=5
-            df["Caja"] = hoja
+            df["CAJA"] = hoja
             dataframes.append(df)
         if not dataframes:
             return pd.DataFrame()
@@ -59,6 +59,9 @@ if len(df.columns) >= 3:
 else:
     columnas_visibles = df.columns
 
+# --- TEXTO SUPERIOR A LA TABLA ---
+st.markdown("**Da click al anticuerpo para ver detalles**")
+
 st.write(
     f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`"
     if busqueda else
@@ -91,17 +94,21 @@ if selected:
     fila_idx_real = selected[0]["_fila_real"]  # índice original de df
     st.session_state["fila_seleccionada_idx"] = fila_idx_real
 
-# --- MOSTRAR MODAL SIMULADO (EXPANDER) ENCIMA DE LA TABLA ---
+# --- MOSTRAR DETALLES EN EXPANDER ---
 if st.session_state.get("fila_seleccionada_idx") is not None:
     fila_idx = st.session_state["fila_seleccionada_idx"]
     registro = df.loc[fila_idx]
+
+    # Expander
     with st.expander(f"📋 Detalle de {registro[columnas_visibles[0]]}", expanded=True):
         for col, val in registro.items():
-            st.markdown(f"**{col}:** {val}")
-        if st.button("Cerrar"):
-            st.session_state["fila_seleccionada_idx"] = None
+            # Quitar decimales si es la columna A (primer columna del Excel)
+            if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
+                val = int(val)
+            # Poner el título en rojo
+            st.markdown(f"<span style='color:red; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
 
 # --- BOTÓN DE ACTUALIZAR ---
-if st.button("🔁 Actualizar los datos"):
+if st.button("🔁 Actualizar los datos después de modificar en Excel"):
     st.cache_data.clear()
     st.experimental_rerun()
