@@ -36,13 +36,9 @@ def cargar_datos_drive():
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
 # --- TÍTULO DE LA APP ---
-st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO ❤️‍🩹</h1>", unsafe_allow_html=True)
 
-# --- BOTÓN PARA LIMPIAR CACHE Y RECARGAR DATOS ---
-if st.button("🔁 Actualizar después de modificar el Excel"):
-    if hasattr(st, "cache_data"):
-        st.cache_data.clear()
-    st.success("Cache limpiada. Los datos se actualizarán automáticamente al recargar la tabla.")
+
 
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
@@ -54,7 +50,7 @@ if "fila_seleccionada_idx" not in st.session_state:
     st.session_state["fila_seleccionada_idx"] = None
 
 # --- BÚSQUEDA ---
-busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
+busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo:", "").strip()
 if busqueda:
     resultados = df[df.apply(lambda fila: fila.astype(str).str.contains(busqueda, case=False).any(), axis=1)].copy()
 else:
@@ -114,3 +110,9 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
                 st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
     except Exception as e:
         st.warning(f"No se pudo mostrar los detalles: {e}")
+
+# --- BOTÓN PARA LIMPIAR CACHE Y RECARGAR DATOS ---
+if st.button("🔁 Actualizar después de modificar el Excel"):
+    if hasattr(st, "cache_data"):
+        st.cache_data.clear()
+    st.success("Cache limpiada. Los datos se actualizarán automáticamente al recargar la tabla.")
