@@ -36,7 +36,7 @@ def cargar_datos_drive():
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
 # --- TÍTULO DE LA APP ---
-st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO ❤️‍🩹</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
 
 # --- CARGAR DATOS ---
 df = cargar_datos_drive()
@@ -50,7 +50,7 @@ if "actualizar_flag" not in st.session_state:
     st.session_state["actualizar_flag"] = False
 
 # --- BÚSQUEDA ---
-busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo:", "").strip()
+busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
 if busqueda:
     resultados = df[df.apply(lambda fila: fila.astype(str).str.contains(busqueda, case=False).any(), axis=1)].copy()
 else:
@@ -101,4 +101,23 @@ if selected and len(selected) > 0:
 # --- MOSTRAR DETALLES EN EXPANDER ---
 if st.session_state.get("fila_seleccionada_idx") is not None:
     fila_idx = st.session_state["fila_seleccionada_idx"]
-    regist
+    try:
+        registro = df.loc[fila_idx]
+        with st.expander(f"📋 **Detalles de {registro[columnas_visibles[0]]}**", expanded=True):
+            for col, val in registro.items():
+                if col == df.columns[0] and pd.api.types.is_numeric_dtype(val):
+                    val = int(val)
+                st.markdown(f"<span style='color:#C67FAE; font-weight:bold'>{col}:</span> {val}", unsafe_allow_html=True)
+    except Exception as e:
+        st.warning(f"No se pudo mostrar los detalles: {e}")
+
+# --- BOTÓN DE ACTUALIZAR ---
+if st.button("🔁 Actualizar después de modificar el Excel"):
+    if hasattr(st, "cache_data"):
+        st.cache_data.clear()
+    st.session_state["actualizar_flag"] = True  # activar flag para rerun seguro
+
+# --- EJECUTAR rerun de manera segura ---
+if st.session_state.get("actualizar_flag"):
+    st.session_state["actualizar_flag"] = False
+    st.experimental_rerun()
