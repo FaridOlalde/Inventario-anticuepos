@@ -42,7 +42,7 @@ df = cargar_datos_drive()
 if df.empty:
     st.stop()
 
-# --- INICIALIZAR SESSION_STATE para la fila seleccionada ---
+# --- INICIALIZAR session_state para la fila seleccionada ---
 if "fila_seleccionada" not in st.session_state:
     st.session_state["fila_seleccionada"] = None
 
@@ -76,7 +76,6 @@ if st.session_state["fila_seleccionada"] is not None:
         st.divider()
         if st.button("Cerrar"):
             st.session_state["fila_seleccionada"] = None
-            st.experimental_rerun()
 
 # --- CONFIGURAR TABLA INTERACTIVA ---
 gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
@@ -99,7 +98,6 @@ selected = grid_response.get("selected_rows", [])
 if selected and len(selected) > 0:
     row_index = int(selected[0]["_selectedRowNodeInfo"]["nodeId"])
     st.session_state["fila_seleccionada"] = row_index
-    st.experimental_rerun()
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
