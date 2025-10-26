@@ -36,34 +36,6 @@ def cargar_datos_drive():
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
 
-# --- TEMA DÍA DE MUERTOS ---
-
-    # Fondo decorativo
-    st.markdown(
-        """
-        <style>
-        .stApp {
-            background-image: url('https://i.imgur.com/7F1rjhd.png'); /* Cambia por tu imagen de fondo */
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    # Adornos flotantes
-    st.markdown(
-        """
-        <div style='position: absolute; top: 20px; left: 20px; width: 80px;'>
-            <img src='https://i.imgur.com/9v5Y1jC.png' width='80'>
-        </div>
-        <div style='position: absolute; top: 20px; right: 20px; width: 80px;'>
-            <img src='https://i.imgur.com/9v5Y1jC.png' width='80'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 # --- TÍTULO DE LA APP ---
 st.markdown("<h1 style='color:#CD212A;'>Inventario de Anticuerpos CARDIO-INMUNO</h1>", unsafe_allow_html=True)
