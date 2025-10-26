@@ -34,7 +34,7 @@ def cargar_datos_drive():
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Inventario de Anticuerpos", layout="wide")
-st.markdown("<h1 style='color:#42BDCB;'>Inventario de Anticuerpos CARDIO-INMUNO 🇲🇽 </h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#9F2436;'>Inventario de Anticuerpos CARDIO-INMUNO ❤️‍🩹🔬 </h1>", unsafe_allow_html=True)
     
 st.caption("Busca los anticuerpos por nombre.")
 
