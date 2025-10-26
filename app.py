@@ -46,6 +46,8 @@ if df.empty:
 # --- INICIALIZAR session_state ---
 if "fila_seleccionada_idx" not in st.session_state:
     st.session_state["fila_seleccionada_idx"] = None
+if "actualizar_flag" not in st.session_state:
+    st.session_state["actualizar_flag"] = False
 
 # --- BÚSQUEDA ---
 busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
@@ -112,7 +114,11 @@ if st.session_state.get("fila_seleccionada_idx") is not None:
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar después de modificar el Excel"):
     if hasattr(st, "cache_data"):
-        st.cache_data.clear()  # Limpiar cache
-    st.session_state["fila_seleccionada_idx"] = None  # Resetear selección
-    st.experimental_rerun()  # Recargar app
-    st.stop()  # Detener ejecución para que el rerun sea seguro
+        st.cache_data.clear()
+    st.session_state["fila_seleccionada_idx"] = None
+    st.session_state["actualizar_flag"] = True
+
+# --- EJECUTAR rerun de manera segura ---
+if st.session_state.get("actualizar_flag"):
+    st.session_state["actualizar_flag"] = False
+    st.experimental_rerun()
