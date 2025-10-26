@@ -65,11 +65,15 @@ st.write(
     "Mostrando todos los registros disponibles"
 )
 
+# --- AÑADIR COLUMNA TEMPORAL CON EL ÍNDICE REAL ---
+resultados = resultados.reset_index(drop=False)  # crea columna 'index' con índice original
+col_index_name = "index"
+
 # --- MOSTRAR MODAL SIMULADO ARRIBA ---
 if st.session_state.get("fila_seleccionada") is not None:
     fila_idx = st.session_state["fila_seleccionada"]
-    if fila_idx < len(resultados):
-        registro = resultados.iloc[fila_idx]
+    if fila_idx < len(df):
+        registro = df.iloc[fila_idx]
         with st.container():
             st.markdown(f"### 📋 Detalle de {registro[columnas_visibles[0]]}")
             st.divider()
@@ -80,13 +84,13 @@ if st.session_state.get("fila_seleccionada") is not None:
                 st.session_state["fila_seleccionada"] = None
 
 # --- CONFIGURAR TABLA INTERACTIVA ---
-gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
+gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles.tolist() + [col_index_name]])
 gb.configure_selection('single', use_checkbox=False)
 gb.configure_grid_options(domLayout='autoHeight')
 grid_options = gb.build()
 
 grid_response = AgGrid(
-    resultados[columnas_visibles],
+    resultados[columnas_visibles.tolist() + [col_index_name]],
     gridOptions=grid_options,
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     enable_enterprise_modules=False,
@@ -98,11 +102,11 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC ---
 selected = grid_response.get("selected_rows", [])
 if selected and len(selected) > 0:
-    # Usamos rowIndex que nos da AgGrid para acceder al DataFrame filtrado
-    fila_idx = selected[0]["_selectedRowNodeInfo"]["rowIndex"]
+    fila_idx = selected[0][col_index_name]  # índice seguro
     st.session_state["fila_seleccionada"] = fila_idx
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
     st.cache_data.clear()
     st.experimental_rerun()
+
