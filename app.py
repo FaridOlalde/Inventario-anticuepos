@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from io import BytesIO
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from streamlit_modal import Modal  # 👈 agregado para la ventana emergente
 
 # --- CONFIGURACIÓN DE GOOGLE DRIVE ---
 FILE_ID = "1TVnBvEjwY0Alywyp75QTwWVw0yqdWJaV"
@@ -56,7 +57,11 @@ if len(df.columns) >= 3:
 else:
     columnas_visibles = df.columns
 
-st.write(f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`" if busqueda else "Mostrando todos los registros disponibles")
+st.write(
+    f"Se encontraron **{len(resultados)}** resultados para: `{busqueda}`"
+    if busqueda else
+    "Mostrando todos los registros disponibles"
+)
 
 # --- CONFIGURAR TABLA INTERACTIVA ---
 gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
@@ -72,33 +77,35 @@ grid_response = AgGrid(
     enable_enterprise_modules=False,
     fit_columns_on_grid_load=True,
     height=400,
-    theme="streamlit",  # opciones: "streamlit", "material", "balham", etc.
+    theme="streamlit",
 )
 
-# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL ---
-selected = grid_response['selected_rows']
+# --- DETECCIÓN DE CLIC Y MOSTRAR MODAL (BURBUJA) ---
+selected = grid_response.get("selected_rows", [])
 
-if selected is not None and len(selected) > 0:
-    # Si es un DataFrame, lo convertimos a diccionario
-    if isinstance(selected, pd.DataFrame):
-        fila = selected.iloc[0].to_dict()
-    elif isinstance(selected, list) and isinstance(selected[0], dict):
-        fila = selected[0]
-    else:
-        fila = None
+# Configurar el modal (ventana emergente)
+modal = Modal(key="detalle_modal", title="📋 Detalle del Anticuerpo")
 
-    if fila:
-        # Buscar el registro completo en el dataframe original
-        filtro = resultados[columnas_visibles[0]] == fila[columnas_visibles[0]]
-        if filtro.any():
-            registro = resultados.loc[filtro].iloc[0]
+if selected and len(selected) > 0:
+    fila = selected[0]
+    modal.open()
 
-            with st.modal(f"📋 Detalle de {registro[columnas_visibles[0]]}"):
-                for col, val in registro.items():
-                    st.markdown(f"**{col}:** {val}")
-                if st.button("Cerrar"):
-                    st.rerun()
+if modal.is_open() and selected and len(selected) > 0:
+    fila = selected[0]
 
+    # Buscar el registro completo
+    filtro = resultados[columnas_visibles[0]] == fila[columnas_visibles[0]]
+    if filtro.any():
+        registro = resultados.loc[filtro].iloc[0]
+
+        with modal.container():
+            st.markdown(f"### 📋 Detalle de **{registro[columnas_visibles[0]]}**")
+            st.divider()
+            for col, val in registro.items():
+                st.markdown(f"**{col}:** {val}")
+            st.divider()
+            if st.button("Cerrar"):
+                modal.close()
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
