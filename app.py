@@ -43,8 +43,8 @@ if df.empty:
     st.stop()
 
 # --- INICIALIZAR session_state para la fila seleccionada ---
-if "fila_seleccionada" not in st.session_state:
-    st.session_state["fila_seleccionada"] = None
+if "fila_seleccionada_idx" not in st.session_state:
+    st.session_state["fila_seleccionada_idx"] = None
 
 # --- BÚSQUEDA ---
 busqueda = st.text_input("🔎 Escribe el nombre del anticuerpo o Caja:", "").strip()
@@ -65,32 +65,14 @@ st.write(
     "Mostrando todos los registros disponibles"
 )
 
-# --- AÑADIR COLUMNA TEMPORAL CON EL ÍNDICE REAL ---
-resultados = resultados.reset_index(drop=False)  # crea columna 'index' con índice original
-col_index_name = "index"
-
-# --- MOSTRAR MODAL SIMULADO ARRIBA ---
-if st.session_state.get("fila_seleccionada") is not None:
-    fila_idx = st.session_state["fila_seleccionada"]
-    if fila_idx < len(df):
-        registro = df.iloc[fila_idx]
-        with st.container():
-            st.markdown(f"### 📋 Detalle de {registro[columnas_visibles[0]]}")
-            st.divider()
-            for col, val in registro.items():
-                st.markdown(f"**{col}:** {val}")
-            st.divider()
-            if st.button("Cerrar"):
-                st.session_state["fila_seleccionada"] = None
-
 # --- CONFIGURAR TABLA INTERACTIVA ---
-gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles.tolist() + [col_index_name]])
+gb = GridOptionsBuilder.from_dataframe(resultados[columnas_visibles])
 gb.configure_selection('single', use_checkbox=False)
 gb.configure_grid_options(domLayout='autoHeight')
 grid_options = gb.build()
 
 grid_response = AgGrid(
-    resultados[columnas_visibles.tolist() + [col_index_name]],
+    resultados[columnas_visibles],
     gridOptions=grid_options,
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     enable_enterprise_modules=False,
@@ -102,11 +84,24 @@ grid_response = AgGrid(
 # --- DETECCIÓN DE CLIC ---
 selected = grid_response.get("selected_rows", [])
 if selected and len(selected) > 0:
-    fila_idx = selected[0][col_index_name]  # índice seguro
-    st.session_state["fila_seleccionada"] = fila_idx
+    # AgGrid devuelve la fila seleccionada como diccionario
+    fila_valor = selected[0][columnas_visibles[0]]
+    # Buscamos la primera coincidencia en resultados
+    coincidencia = resultados[columnas_visibles[0]] == fila_valor
+    if coincidencia.any():
+        st.session_state["fila_seleccionada_idx"] = resultados[coincidencia].index[0]
+
+# --- MOSTRAR MODAL SIMULADO (EXPANDER) ENCIMA DE LA TABLA ---
+if st.session_state.get("fila_seleccionada_idx") is not None:
+    fila_idx = st.session_state["fila_seleccionada_idx"]
+    registro = df.loc[fila_idx]
+    with st.expander(f"📋 Detalle de {registro[columnas_visibles[0]]}", expanded=True):
+        for col, val in registro.items():
+            st.markdown(f"**{col}:** {val}")
+        if st.button("Cerrar"):
+            st.session_state["fila_seleccionada_idx"] = None
 
 # --- BOTÓN DE ACTUALIZAR ---
 if st.button("🔁 Actualizar los datos"):
     st.cache_data.clear()
     st.experimental_rerun()
-
